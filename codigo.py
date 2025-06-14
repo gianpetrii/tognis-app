@@ -1,17 +1,76 @@
 import pandas as pd
 import os
 import numpy as np
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import glob
 
-# Lista de archivos a procesar
-rutas_excel = [
-    r"L:\Unidades compartidas\Cuentas Activas\Edificio - HER El Salvador\HER El Salvador - Producción industrializada mobiliario\Editables\Mobiliario\Lista de cortes\Completo\n1b completo.xlsx",
-    r"L:\Unidades compartidas\Cuentas Activas\Edificio - HER El Salvador\HER El Salvador - Producción industrializada mobiliario\Editables\Mobiliario\Lista de cortes\Completo\n1c completo.xlsx",
-    r"L:\Unidades compartidas\Cuentas Activas\Edificio - HER El Salvador\HER El Salvador - Producción industrializada mobiliario\Editables\Mobiliario\Lista de cortes\Completo\n1a completo.xlsx",
-    r"L:\Unidades compartidas\Cuentas Activas\Edificio - HER El Salvador\HER El Salvador - Producción industrializada mobiliario\Editables\Mobiliario\Lista de cortes\Completo\n1a completo.xlsx",
-]
+def seleccionar_carpeta_entrada():
+    """Permite al usuario seleccionar la carpeta con los archivos Excel"""
+    root = tk.Tk()
+    root.withdraw()  # Ocultar la ventana principal
+    
+    carpeta = filedialog.askdirectory(
+        title="Selecciona la carpeta con los archivos Excel a procesar"
+    )
+    
+    if not carpeta:
+        messagebox.showinfo("Cancelado", "No se seleccionó ninguna carpeta.")
+        return None
+    
+    # Buscar todos los archivos .xlsx en la carpeta seleccionada
+    patron_excel = os.path.join(carpeta, "*.xlsx")
+    archivos_excel = glob.glob(patron_excel)
+    
+    if not archivos_excel:
+        messagebox.showwarning("Sin archivos", f"No se encontraron archivos Excel (.xlsx) en:\n{carpeta}")
+        return None
+    
+    print(f"\n📁 Carpeta seleccionada: {carpeta}")
+    print(f"📋 Archivos encontrados ({len(archivos_excel)}):")
+    for archivo in archivos_excel:
+        print(f"  • {os.path.basename(archivo)}")
+    
+    return archivos_excel
 
-# Archivo de salida
-ruta_salida = r"L:\Unidades compartidas\Cuentas Activas\Edificio - HER El Salvador\HER El Salvador - Producción industrializada mobiliario\Editables\Mobiliario\Lista de cortes\Completo\n1 procesado.xlsx"
+def seleccionar_archivo_salida():
+    """Permite al usuario seleccionar dónde guardar el archivo de salida"""
+    root = tk.Tk()
+    root.withdraw()  # Ocultar la ventana principal
+    
+    archivo_salida = filedialog.asksaveasfilename(
+        title="Guardar archivo procesado como...",
+        defaultextension=".xlsx",
+        filetypes=[("Archivos Excel", "*.xlsx"), ("Todos los archivos", "*.*")],
+        initialfile="archivo_procesado.xlsx"
+    )
+    
+    if not archivo_salida:
+        messagebox.showinfo("Cancelado", "No se seleccionó ubicación de salida.")
+        return None
+    
+    return archivo_salida
+
+# Seleccionar archivos de entrada
+print("🔍 Selecciona la carpeta con los archivos Excel...")
+rutas_excel = seleccionar_carpeta_entrada()
+
+if not rutas_excel:
+    print("❌ Proceso cancelado. No se seleccionaron archivos.")
+    exit()
+
+# Seleccionar archivo de salida
+print("\n💾 Selecciona dónde guardar el archivo procesado...")
+ruta_salida = seleccionar_archivo_salida()
+
+if not ruta_salida:
+    print("❌ Proceso cancelado. No se seleccionó archivo de salida.")
+    exit()
+
+print(f"\n✅ Configuración completada:")
+print(f"📥 Archivos a procesar: {len(rutas_excel)}")
+print(f"📤 Archivo de salida: {os.path.basename(ruta_salida)}")
+print(f"📍 Ubicación: {os.path.dirname(ruta_salida)}")
 
 def procesar_archivo(ruta_excel):
     print(f"\nProcesando archivo: {os.path.basename(ruta_excel)}")
